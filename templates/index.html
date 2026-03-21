@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="tk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice AI Agent - Ses bilen dolandyryş</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-gradient"></div>
+    <div class="bg-blur-circles">
+        <div class="blur-circle circle-1"></div>
+        <div class="blur-circle circle-2"></div>
+        <div class="blur-circle circle-3"></div>
+        <div class="blur-circle circle-4"></div>
+    </div>
+    <div class="noise-overlay"></div>
+
+    <!-- Language Selector -->
+    <div class="language-selector">
+        <button class="lang-btn active" data-lang="tk">
+            <span class="flag">🇹🇲</span>
+            <span class="lang-text">Türkmençe</span>
+        </button>
+        <button class="lang-btn" data-lang="ru">
+            <span class="flag">🇷🇺</span>
+            <span class="lang-text">Русский</span>
+        </button>
+        <button class="lang-btn" data-lang="tr">
+            <span class="flag">🇹🇷</span>
+            <span class="lang-text">Türkçe</span>
+        </button>
+        <button class="lang-btn" data-lang="en">
+            <span class="flag">🇺🇸</span>
+            <span class="lang-text">English</span>
+        </button>
+        <button class="lang-btn" data-lang="uz">
+            <span class="flag">🇺🇿</span>
+            <span class="lang-text">O'zbekcha</span>
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00f5ff;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#7b2ff7;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <circle cx="50" cy="50" r="45" fill="url(#logoGrad)" opacity="0.2"/>
+                        <path d="M30 50 Q30 30 50 30 Q70 30 70 50 Q70 70 50 70 Q30 70 30 50" 
+                              fill="none" stroke="url(#logoGrad)" stroke-width="3"/>
+                        <circle cx="40" cy="45" r="4" fill="url(#logoGrad)"/>
+                        <circle cx="50" cy="40" r="5" fill="url(#logoGrad)"/>
+                        <circle cx="60" cy="45" r="4" fill="url(#logoGrad)"/>
+                    </svg>
+                </div>
+                <h1 class="logo-text" data-key="title">Voice AI Agent</h1>
+            </div>
+            <p class="subtitle" data-key="subtitle">Sesden iş akymyna - AI tarapyndan goldanýar</p>
+        </header>
+
+        <!-- Main Control Panel -->
+        <div class="control-panel">
+            <div class="status-card">
+                <div class="status-indicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span class="status-text" id="statusText" data-key="status_ready">Taýýar</span>
+                </div>
+                
+                <div class="model-info">
+                    <span class="model-label" data-key="model_label">Model:</span>
+                    <span class="model-name" id="modelName">vosk-model-small-tk-0.22</span>
+                </div>
+            </div>
+
+            <!-- Permission Request -->
+            <div class="permission-request" id="permissionRequest" style="display: none;">
+                <div class="permission-card">
+                    <div class="permission-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6m0 4h.01"/>
+                        </svg>
+                    </div>
+                    <h3 data-key="permission_title">Mikrofon rugsady gerek</h3>
+                    <p data-key="permission_desc">Ses tanama işlemek üçin mikrofonyňyza rugsat beriň</p>
+                    <button class="btn-permission" id="requestPermissionBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            <line x1="12" y1="19" x2="12" y2="23"/>
+                            <line x1="8" y1="23" x2="16" y2="23"/>
+                        </svg>
+                        <span data-key="permission_grant">Rugsat ber</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Voice Control -->
+            <div class="voice-control">
+                <button class="btn-primary" id="startBtn">
+                    <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                        <line x1="12" y1="19" x2="12" y2="23"/>
+                        <line x1="8" y1="23" x2="16" y2="23"/>
+                    </svg>
+                    <span data-key="btn_start">Başla</span>
+                </button>
+
+                <button class="btn-stop" id="stopBtn" style="display: none;">
+                    <svg class="stop-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <rect x="6" y="6" width="12" height="12" rx="2"/>
+                    </svg>
+                    <span data-key="btn_stop">Dur</span>
+                </button>
+            </div>
+
+            <!-- Visualizer -->
+            <div class="visualizer-container">
+                <canvas id="visualizer"></canvas>
+                <div class="waveform">
+                    <div class="wave-bar" style="animation-delay: 0s;"></div>
+                    <div class="wave-bar" style="animation-delay: 0.1s;"></div>
+                    <div class="wave-bar" style="animation-delay: 0.2s;"></div>
+                    <div class="wave-bar" style="animation-delay: 0.3s;"></div>
+                    <div class="wave-bar" style="animation-delay: 0.4s;"></div>
+                    <div class="wave-bar" style="animation-delay: 0.2s;"></div>
+                    <div class="wave-bar" style="animation-delay: 0.1s;"></div>
+                </div>
+            </div>
+
+            <!-- Transcript Display -->
+            <div class="transcript-section">
+                <h3 class="section-title" data-key="transcript_title">Ses Ýazgysy</h3>
+                <div class="transcript-box" id="transcriptBox">
+                    <p class="placeholder" data-key="transcript_placeholder">Siz gürleýänçä, tekst şu ýerde görkeziler...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Commands Section -->
+        <div class="commands-grid">
+            <h2 class="section-title" data-key="commands_title">Elýeterli buýruklar</h2>
+            
+            <div class="command-cards">
+                <div class="command-card">
+                    <div class="command-icon youtube">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
+                    </div>
+                    <h4 data-key="cmd_youtube">YouTube</h4>
+                    <p class="cmd-example">"youtube aç"</p>
+                </div>
+
+                <div class="command-card">
+                    <div class="command-icon google">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
+                        </svg>
+                    </div>
+                    <h4 data-key="cmd_google">Google Gözleg</h4>
+                    <p class="cmd-example">"google türkmen halylary"</p>
+                </div>
+
+                <div class="command-card">
+                    <div class="command-icon word">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M23 0H7.18A3.18 3.18 0 004 3.18V6H1a1 1 0 000 2h3v2H1a1 1 0 000 2h3v2H1a1 1 0 000 2h3v2H1a1 1 0 000 2h3v2.82A3.18 3.18 0 007.18 24H23a1 1 0 001-1V1a1 1 0 00-1-1zm-1 22H7.18A1.18 1.18 0 016 20.82V3.18A1.18 1.18 0 017.18 2H22z"/>
+                            <path d="M11 8h8a1 1 0 000-2h-8a1 1 0 000 2zm0 4h8a1 1 0 000-2h-8a1 1 0 000 2zm0 4h8a1 1 0 000-2h-8a1 1 0 000 2z"/>
+                        </svg>
+                    </div>
+                    <h4 data-key="cmd_word">Word</h4>
+                    <p class="cmd-example">"word aç"</p>
+                </div>
+
+                <div class="command-card">
+                    <div class="command-icon chrome">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0C8.21 0 4.831 1.757 2.632 4.501l3.953 6.848A5.454 5.454 0 0 1 12 6.545h10.691A12 12 0 0 0 12 0zM1.931 5.47A11.943 11.943 0 0 0 0 12c0 6.012 4.42 10.991 10.189 11.864l3.953-6.847a5.45 5.45 0 0 1-6.865-2.29zm13.342 2.166a5.446 5.446 0 0 1 1.45 7.09l.002.001h-.002l-5.344 9.257c.206.01.413.016.621.016 6.627 0 12-5.373 12-12 0-1.54-.29-3.011-.818-4.364zM12 16.364a4.364 4.364 0 1 1 0-8.728 4.364 4.364 0 0 1 0 8.728z"/>
+                        </svg>
+                    </div>
+                    <h4 data-key="cmd_chrome">Chrome</h4>
+                    <p class="cmd-example">"xrom aç"</p>
+                </div>
+
+                <div class="command-card">
+                    <div class="command-icon notepad">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M14.17 5L19 9.83V19H5V5h9.17M14 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9l-7-6zm-2 12H7v2h5v-2zm5-4H7v2h10v-2z"/>
+                        </svg>
+                    </div>
+                    <h4 data-key="cmd_notepad">Notepad</h4>
+                    <p class="cmd-example">"notepad aç"</p>
+                </div>
+
+                <div class="command-card">
+                    <div class="command-icon time">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/>
+                        </svg>
+                    </div>
+                    <h4 data-key="cmd_time">Wagt</h4>
+                    <p class="cmd-example">"häzirki wagt"</p>
+                </div>
+
+                <div class="command-card">
+                    <div class="command-icon email">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                        </svg>
+                    </div>
+                    <h4 data-key="cmd_email">Gmail</h4>
+                    <p class="cmd-example">"gmail aç" / "email iber"</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="activity-section">
+            <h2 class="section-title" data-key="activity_title">Işler ýurnaly</h2>
+            <div class="activity-log" id="activityLog">
+                <p class="placeholder" data-key="activity_placeholder">Işler şu ýerde görkeziler...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Modal -->
+    <div class="email-modal" id="emailModal" style="display: none;">
+        <div class="email-modal-overlay" id="emailModalOverlay"></div>
+        <div class="email-modal-content">
+            <div class="email-modal-header">
+                <h2>
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 30px; height: 30px; vertical-align: middle; margin-right: 10px;">
+                        <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                    </svg>
+                    <span data-key="email_modal_title">Email Iber</span>
+                </h2>
+                <button class="email-modal-close" id="emailModalClose">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="email-modal-body">
+                <div class="email-form">
+                    <div class="form-group">
+                        <label data-key="email_to_label">Kime:</label>
+                        <div class="input-with-mic">
+                            <input type="email" id="emailRecipient" placeholder="example@gmail.com" />
+                            <button class="mic-btn" id="micRecipient" title="Ses bilen ýaz">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-key="email_subject_label">Tema:</label>
+                        <div class="input-with-mic">
+                            <input type="text" id="emailSubject" data-key-placeholder="email_subject_placeholder" placeholder="Email temasy" />
+                            <button class="mic-btn" id="micSubject" title="Ses bilen ýaz">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-key="email_message_label">Habar:</label>
+                        <div class="input-with-mic">
+                            <textarea id="emailMessage" rows="6" data-key-placeholder="email_message_placeholder" placeholder="Habaryňyzy ýazyň..."></textarea>
+                            <button class="mic-btn" id="micMessage" title="Ses bilen ýaz">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="email-form-actions">
+                        <button class="btn-cancel" id="emailCancel" data-key="email_cancel">Ýatyr</button>
+                        <button class="btn-send" id="emailSend">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                            <span data-key="email_send">Iber</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="voice-status" id="voiceStatus" style="display: none;">
+                    <div class="voice-indicator">
+                        <div class="pulse"></div>
+                        <span data-key="voice_listening">Diňleýärin...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2025 Voice AI Agent | <span data-key="footer_powered">Powered by</span> Vosk & Flask</p>
+    </footer>
+
+    <script src="static/js/translations.js"></script>
+    <script src="static/js/app.js"></script>
+</body>
+</html>
