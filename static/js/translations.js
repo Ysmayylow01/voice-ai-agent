@@ -2,6 +2,9 @@
 // MULTILINGUAL TRANSLATIONS
 // ===========================
 
+// Current theme
+let currentTheme = 'dark'; // Default theme
+
 const translations = {
     tk: {
         // Turkmen
@@ -61,7 +64,13 @@ const translations = {
         email_message_placeholder: "Habaryňyzy ýazyň...",
         email_cancel: "Ýatyr",
         email_send: "Iber",
-        voice_listening: "Diňleýärin..."
+        voice_listening: "Diňleýärin...",
+        
+        // Control bar labels
+        label_theme: "Tema",
+        label_language: "Dil",
+        theme_dark: "Garaňky",
+        theme_light: "Açyk"
     },
     
     ru: {
@@ -122,7 +131,13 @@ const translations = {
         email_message_placeholder: "Напишите ваше сообщение...",
         email_cancel: "Отмена",
         email_send: "Отправить",
-        voice_listening: "Слушаю..."
+        voice_listening: "Слушаю...",
+        
+        // Control bar labels
+        label_theme: "Тема",
+        label_language: "Язык",
+        theme_dark: "Тёмная",
+        theme_light: "Светлая"
     },
     
     tr: {
@@ -183,7 +198,13 @@ const translations = {
         email_message_placeholder: "Mesajınızı yazın...",
         email_cancel: "İptal",
         email_send: "Gönder",
-        voice_listening: "Dinliyorum..."
+        voice_listening: "Dinliyorum...",
+        
+        // Control bar labels
+        label_theme: "Tema",
+        label_language: "Dil",
+        theme_dark: "Koyu",
+        theme_light: "Açık"
     },
     
     en: {
@@ -244,7 +265,13 @@ const translations = {
         email_message_placeholder: "Write your message...",
         email_cancel: "Cancel",
         email_send: "Send",
-        voice_listening: "Listening..."
+        voice_listening: "Listening...",
+        
+        // Control bar labels
+        label_theme: "Theme",
+        label_language: "Language",
+        theme_dark: "Dark",
+        theme_light: "Light"
     },
     
     uz: {
@@ -305,9 +332,39 @@ const translations = {
         email_message_placeholder: "Xabaringizni yozing...",
         email_cancel: "Bekor qilish",
         email_send: "Yuborish",
-        voice_listening: "Tinglamoqda..."
+        voice_listening: "Tinglamoqda...",
+        
+        // Control bar labels
+        label_theme: "Mavzu",
+        label_language: "Til",
+        theme_dark: "Qorong'i",
+        theme_light: "Yorug'"
     }
 };
+
+// ===========================
+// THEME MANAGEMENT
+// ===========================
+
+function toggleTheme() {
+    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(currentTheme);
+    
+    // Save to localStorage
+    localStorage.setItem('voiceAgentTheme', currentTheme);
+}
+
+function applyTheme(theme) {
+    const html = document.documentElement;
+    
+    if (theme === 'light') {
+        html.setAttribute('data-theme', 'light');
+    } else {
+        html.removeAttribute('data-theme');
+    }
+    
+    currentTheme = theme;
+}
 
 // ===========================
 // LANGUAGE SWITCHING
@@ -329,13 +386,34 @@ function switchLanguage(lang) {
         }
     });
     
-    // Update active language button
-    document.querySelectorAll('.lang-btn').forEach(btn => {
+    // Update placeholder attributes
+    document.querySelectorAll('[data-key-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-key-placeholder');
+        if (translations[lang] && translations[lang][key]) {
+            element.placeholder = translations[lang][key];
+        }
+    });
+    
+    // Update active language option in dropdown
+    document.querySelectorAll('.lang-option').forEach(btn => {
         btn.classList.remove('active');
         if (btn.getAttribute('data-lang') === lang) {
             btn.classList.add('active');
         }
     });
+    
+    // Update current language display on button
+    const currentLangDisplay = document.getElementById('currentLang');
+    if (currentLangDisplay) {
+        const langCodes = {
+            'tk': 'TK',
+            'ru': 'RU',
+            'tr': 'TR',
+            'en': 'EN',
+            'uz': 'UZ'
+        };
+        currentLangDisplay.textContent = langCodes[lang] || 'TK';
+    }
     
     // Update model name based on language
     updateModelName(lang);
@@ -360,17 +438,62 @@ function getText(key) {
     return translations[currentLang][key] || key;
 }
 
-// Initialize language on page load
+// Initialize language and theme on page load
 document.addEventListener('DOMContentLoaded', () => {
+    // Load saved theme or use default
+    const savedTheme = localStorage.getItem('voiceAgentTheme') || 'dark';
+    applyTheme(savedTheme);
+    
     // Load saved language or use default
     const savedLang = localStorage.getItem('voiceAgentLang') || 'tk';
     switchLanguage(savedLang);
     
-    // Add language button listeners
-    document.querySelectorAll('.lang-btn').forEach(btn => {
+    // Add language option listeners
+    document.querySelectorAll('.lang-option').forEach(btn => {
         btn.addEventListener('click', () => {
             const lang = btn.getAttribute('data-lang');
             switchLanguage(lang);
+            closeLanguageMenu();
         });
     });
+    
+    // Add theme button listener
+    const themeBtn = document.getElementById('themeBtn');
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            toggleTheme();
+        });
+    }
+    
+    // Add language dropdown toggle
+    const languageBtn = document.getElementById('languageBtn');
+    const languageMenu = document.getElementById('languageMenu');
+    
+    if (languageBtn && languageMenu) {
+        languageBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            languageMenu.classList.toggle('show');
+            languageBtn.classList.toggle('active');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!languageBtn.contains(e.target) && !languageMenu.contains(e.target)) {
+                closeLanguageMenu();
+            }
+        });
+    }
 });
+
+function closeLanguageMenu() {
+    const languageMenu = document.getElementById('languageMenu');
+    const languageBtn = document.getElementById('languageBtn');
+    
+    if (languageMenu) {
+        languageMenu.classList.remove('show');
+    }
+    
+    if (languageBtn) {
+        languageBtn.classList.remove('active');
+    }
+}

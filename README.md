@@ -91,7 +91,7 @@ pip --version
 ### 2. Repositoriýany klonlamak
 
 ```bash
-git clone https://github.com/yourusername/voice-ai-agent.git
+git clone https://github.com/Ysmayylow01/voice-ai-agent.git
 cd voice-ai-agent
 ```
 

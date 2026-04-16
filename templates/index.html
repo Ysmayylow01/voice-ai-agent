@@ -18,28 +18,71 @@
     </div>
     <div class="noise-overlay"></div>
 
-    <!-- Language Selector -->
-    <div class="language-selector">
-        <button class="lang-btn active" data-lang="tk">
-            <span class="flag">🇹🇲</span>
-            <span class="lang-text">Türkmençe</span>
-        </button>
-        <button class="lang-btn" data-lang="ru">
-            <span class="flag">🇷🇺</span>
-            <span class="lang-text">Русский</span>
-        </button>
-        <button class="lang-btn" data-lang="tr">
-            <span class="flag">🇹🇷</span>
-            <span class="lang-text">Türkçe</span>
-        </button>
-        <button class="lang-btn" data-lang="en">
-            <span class="flag">🇺🇸</span>
-            <span class="lang-text">English</span>
-        </button>
-        <button class="lang-btn" data-lang="uz">
-            <span class="flag">🇺🇿</span>
-            <span class="lang-text">O'zbekcha</span>
-        </button>
+    <!-- Modern Floating Controls -->
+    <div class="floating-controls">
+        <!-- Theme Toggle (Floating button) -->
+        <div class="theme-toggle-wrapper">
+            <button class="theme-btn" id="themeBtn">
+                <div class="theme-icon-wrapper">
+                    <svg class="theme-icon moon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="theme-icon sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </div>
+            </button>
+        </div>
+
+        <!-- Language Dropdown -->
+        <div class="language-dropdown">
+            <button class="language-btn" id="languageBtn">
+                <svg class="lang-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+                <span class="current-lang" id="currentLang">TK</span>
+            </button>
+            
+            <div class="language-menu" id="languageMenu">
+                <div class="language-menu-content">
+                    <button class="lang-option active" data-lang="tk">
+                        <span class="lang-flag">🇹🇲</span>
+                        <span class="lang-label">Türkmençe</span>
+                        <span class="lang-code">TK</span>
+                    </button>
+                    <button class="lang-option" data-lang="ru">
+                        <span class="lang-flag">🇷🇺</span>
+                        <span class="lang-label">Русский</span>
+                        <span class="lang-code">RU</span>
+                    </button>
+                    <button class="lang-option" data-lang="tr">
+                        <span class="lang-flag">🇹🇷</span>
+                        <span class="lang-label">Türkçe</span>
+                        <span class="lang-code">TR</span>
+                    </button>
+                    <button class="lang-option" data-lang="en">
+                        <span class="lang-flag">🇺🇸</span>
+                        <span class="lang-label">English</span>
+                        <span class="lang-code">EN</span>
+                    </button>
+                    <button class="lang-option" data-lang="uz">
+                        <span class="lang-flag">🇺🇿</span>
+                        <span class="lang-label">O'zbekcha</span>
+                        <span class="lang-code">UZ</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="container">
