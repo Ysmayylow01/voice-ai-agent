@@ -64,8 +64,11 @@ const translations = {
         email_message_placeholder: "Habaryňyzy ýazyň...",
         email_cancel: "Ýatyr",
         email_send: "Iber",
+        email_attach_label: "Faýl goş:",
+        email_attach_btn: "Faýl saýla",
+        email_attach_too_large: "Faýllar 25 MB çäginden geçdi",
         voice_listening: "Diňleýärin...",
-        
+
         // Control bar labels
         label_theme: "Tema",
         label_language: "Dil",
@@ -131,6 +134,9 @@ const translations = {
         email_message_placeholder: "Напишите ваше сообщение...",
         email_cancel: "Отмена",
         email_send: "Отправить",
+        email_attach_label: "Прикрепить файл:",
+        email_attach_btn: "Выбрать файл",
+        email_attach_too_large: "Файлы превышают лимит 25 МБ",
         voice_listening: "Слушаю...",
         
         // Control bar labels
@@ -198,6 +204,9 @@ const translations = {
         email_message_placeholder: "Mesajınızı yazın...",
         email_cancel: "İptal",
         email_send: "Gönder",
+        email_attach_label: "Dosya ekle:",
+        email_attach_btn: "Dosya seç",
+        email_attach_too_large: "Dosyalar 25 MB sınırını aştı",
         voice_listening: "Dinliyorum...",
         
         // Control bar labels
@@ -265,6 +274,9 @@ const translations = {
         email_message_placeholder: "Write your message...",
         email_cancel: "Cancel",
         email_send: "Send",
+        email_attach_label: "Attach file:",
+        email_attach_btn: "Choose file",
+        email_attach_too_large: "Attachments exceed 25 MB limit",
         voice_listening: "Listening...",
         
         // Control bar labels
@@ -332,6 +344,9 @@ const translations = {
         email_message_placeholder: "Xabaringizni yozing...",
         email_cancel: "Bekor qilish",
         email_send: "Yuborish",
+        email_attach_label: "Fayl biriktirish:",
+        email_attach_btn: "Fayl tanlash",
+        email_attach_too_large: "Fayllar 25 MB chegarasidan oshdi",
         voice_listening: "Tinglamoqda...",
         
         // Control bar labels

@@ -19,6 +19,9 @@ load_dotenv()
 # EMAIL
 import smtplib
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 
 app = Flask(__name__)
 CORS(app)
@@ -97,23 +100,43 @@ COMMAND_KEYWORDS = {
 # EMAIL FUNCTIONS
 # =====================
 
-def send_email(to_email, subject, message):
+MAX_ATTACHMENT_SIZE = 25 * 1024 * 1024  # 25 MB Gmail limit
+
+
+def send_email(to_email, subject, message, attachments=None):
     """
-    Send email via Gmail SMTP
-    
+    Send email via Gmail SMTP with optional attachments
+
     Args:
         to_email: Recipient email address
         subject: Email subject
         message: Email body
-    
+        attachments: List of Werkzeug FileStorage objects (optional)
+
     Returns:
         bool: True if successful, False otherwise
     """
     try:
-        msg = MIMEText(message)
+        msg = MIMEMultipart()
         msg['Subject'] = subject
         msg['From'] = EMAIL_USER
         msg['To'] = to_email
+        msg.attach(MIMEText(message, 'plain', 'utf-8'))
+
+        if attachments:
+            for f in attachments:
+                if not f or not f.filename:
+                    continue
+                file_data = f.read()
+                part = MIMEBase('application', 'octet-stream')
+                part.set_payload(file_data)
+                encoders.encode_base64(part)
+                part.add_header(
+                    'Content-Disposition',
+                    f'attachment; filename="{f.filename}"'
+                )
+                msg.attach(part)
+                print(f"📎 Attached: {f.filename} ({len(file_data)} bytes)")
 
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.login(EMAIL_USER, EMAIL_PASSWORD)
@@ -257,40 +280,49 @@ def execute_command():
 @app.route('/send_email', methods=['POST'])
 def send_email_route():
     """
-    Send email via Gmail
-    
-    Expected JSON:
-    {
-        "to_email": "recipient@example.com",
-        "subject": "Email subject",
-        "message": "Email message"
-    }
-    
-    Returns:
-    {
-        "success": true,
-        "result": "Email sent"
-    }
+    Send email via Gmail with optional file attachments.
+
+    Accepts either:
+    - multipart/form-data: to_email, subject, message, attachments[] (files)
+    - application/json: { to_email, subject, message }  (no attachments)
     """
     try:
-        data = request.get_json()
-        to_email = data.get('to_email', '').strip()
-        subject = data.get('subject', '').strip()
-        message = data.get('message', '').strip()
-        
+        if request.content_type and request.content_type.startswith('multipart/form-data'):
+            to_email = request.form.get('to_email', '').strip()
+            subject = request.form.get('subject', '').strip()
+            message = request.form.get('message', '').strip()
+            attachments = request.files.getlist('attachments')
+        else:
+            data = request.get_json(silent=True) or {}
+            to_email = data.get('to_email', '').strip()
+            subject = data.get('subject', '').strip()
+            message = data.get('message', '').strip()
+            attachments = []
+
         print(f"📧 Sending email to: {to_email}")
         print(f"   Subject: {subject}")
-        
-        # Validate inputs
+        if attachments:
+            print(f"   Attachments: {len(attachments)}")
+
         if not to_email or not subject or not message:
             return jsonify({
                 'success': False,
                 'error': 'Missing required fields'
             }), 400
-        
-        # Send email
-        success = send_email(to_email, subject, message)
-        
+
+        total_size = 0
+        for f in attachments:
+            f.stream.seek(0, 2)
+            total_size += f.stream.tell()
+            f.stream.seek(0)
+        if total_size > MAX_ATTACHMENT_SIZE:
+            return jsonify({
+                'success': False,
+                'error': f'Attachments exceed 25 MB limit ({total_size // (1024*1024)} MB)'
+            }), 400
+
+        success = send_email(to_email, subject, message, attachments)
+
         if success:
             return jsonify({
                 'success': True,
@@ -301,7 +333,7 @@ def send_email_route():
                 'success': False,
                 'error': 'Failed to send email. Check your EMAIL_PASSWORD configuration.'
             }), 500
-        
+
     except Exception as e:
         print(f"❌ Email error: {str(e)}")
         return jsonify({

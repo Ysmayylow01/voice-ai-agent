@@ -6,6 +6,8 @@ let isListening = false;
 let recognition = null;
 let activityLog = [];
 let currentVoiceField = null; // Track which field is being filled by voice
+let selectedAttachments = []; // Files chosen in the email modal
+const MAX_ATTACHMENT_SIZE = 25 * 1024 * 1024; // 25 MB
 
 // ===========================
 // INITIALIZATION
@@ -243,14 +245,59 @@ function setupEmailModalListeners() {
     if (micRecipient) {
         micRecipient.addEventListener('click', () => startVoiceInput('recipient'));
     }
-    
+
     if (micSubject) {
         micSubject.addEventListener('click', () => startVoiceInput('subject'));
     }
-    
+
     if (micMessage) {
         micMessage.addEventListener('click', () => startVoiceInput('message'));
     }
+
+    // Attachment handlers
+    const attachBtn = document.getElementById('emailAttachBtn');
+    const attachInput = document.getElementById('emailAttachments');
+    if (attachBtn && attachInput) {
+        attachBtn.addEventListener('click', () => attachInput.click());
+        attachInput.addEventListener('change', (e) => {
+            for (const file of e.target.files) {
+                selectedAttachments.push(file);
+            }
+            attachInput.value = '';
+            renderAttachmentList();
+        });
+    }
+}
+
+function renderAttachmentList() {
+    const list = document.getElementById('attachmentList');
+    if (!list) return;
+
+    list.innerHTML = '';
+    selectedAttachments.forEach((file, idx) => {
+        const item = document.createElement('div');
+        item.className = 'attachment-item';
+        item.innerHTML = `
+            <span class="attachment-name">📎 ${file.name}</span>
+            <span class="attachment-size">${formatFileSize(file.size)}</span>
+            <button type="button" class="attachment-remove" data-idx="${idx}" title="Aýyr">×</button>
+        `;
+        list.appendChild(item);
+    });
+
+    list.querySelectorAll('.attachment-remove').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const idx = parseInt(e.currentTarget.getAttribute('data-idx'), 10);
+            selectedAttachments.splice(idx, 1);
+            renderAttachmentList();
+        });
+    });
+}
+
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
 function openEmailModal() {
@@ -272,12 +319,16 @@ function closeEmailModal() {
     const modal = document.getElementById('emailModal');
     if (modal) {
         modal.style.display = 'none';
-        
+
         // Clear form
         document.getElementById('emailRecipient').value = '';
         document.getElementById('emailSubject').value = '';
         document.getElementById('emailMessage').value = '';
-        
+
+        // Clear attachments
+        selectedAttachments = [];
+        renderAttachmentList();
+
         // Hide voice status
         document.getElementById('voiceStatus').style.display = 'none';
     }
@@ -441,32 +492,42 @@ async function sendEmail() {
         return;
     }
     
+    // Attachment size guard (matches backend 25 MB limit)
+    const totalSize = selectedAttachments.reduce((sum, f) => sum + f.size, 0);
+    if (totalSize > MAX_ATTACHMENT_SIZE) {
+        showNotification(getText('email_attach_too_large') || 'Attachments exceed 25 MB', 'error');
+        return;
+    }
+
     try {
         showNotification(getText('voice_listening') + '...', 'info');
-        
-        // Send to backend
+
+        const formData = new FormData();
+        formData.append('to_email', recipient);
+        formData.append('subject', subject);
+        formData.append('message', message);
+        selectedAttachments.forEach(file => {
+            formData.append('attachments', file, file.name);
+        });
+
         const response = await fetch('/send_email', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                to_email: recipient,
-                subject: subject,
-                message: message
-            })
+            body: formData
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
             showNotification(getText('activity_email_sent') + '!', 'success');
-            addActivity('📧', `${getText('activity_email_sent')}: ${recipient}`);
+            const attachNote = selectedAttachments.length
+                ? ` (+${selectedAttachments.length} 📎)`
+                : '';
+            addActivity('📧', `${getText('activity_email_sent')}: ${recipient}${attachNote}`);
             closeEmailModal();
         } else {
             showNotification('Email error: ' + (result.error || 'Unknown error'), 'error');
         }
-        
+
     } catch (error) {
         console.error('Send email error:', error);
         showNotification('Email sending failed: ' + error.message, 'error');
